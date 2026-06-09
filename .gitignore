@@ -1,0 +1,29 @@
+# Large data files
+*.pcap
+*.pcapng
+*.cap
+*.zip
+*.tgz
+*.tar
+*.tar.gz
+*.gz
+
+# Feature extraction output
+preprocessing/features_out/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# OS
+.DS_Store
+Thumbs.db

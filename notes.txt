@@ -1,0 +1,11 @@
+to transfer dataset from pc to server: (from git bash)
+scp /e/data/archive.zip fabric_P4DPDKJournal_server_3:~/datasets/
+unzip archive.zip
+tree DDoS-AT-2022 > DDoS-AT-2022_tree.txt
+
+to add .pcap extension:
+find . -type f -path "*/PCAP*/*" ! -name "*.pcap" -exec mv -- {} {}.pcap \;
+
+to download pcap faster:
+axel -n 8 "http://mawi.nezu.wide.ad.jp/mawi/ditl/ditl2026/202604080000.pcap.gz"
+gunzip 202604080000.pcap.gz

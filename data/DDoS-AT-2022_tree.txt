@@ -1,0 +1,80 @@
+DDoS-AT-2022
+├── Flash traffic
+│   └── Flash traffic
+│       ├── flash traffic_with_r.pcap
+│       └── flash traffic_without r.pcap
+├── HTTP-Low volume-slow rate-slow body
+│   └── HTTP-Low volume-slow rate-slow body
+│       ├── slowbody_1st.pcap
+│       ├── slowbody_2nd.pcap
+│       └── slowbody_3rd.pcap
+├── HTTP-Low volume-slow rate-slow header
+│   └── HTTP-Low volume-slow rate-slow header
+│       ├── slow header_1st.pcap
+│       ├── slow header_2nd.pcap
+│       └── slow header_3rd.pcap
+├── HTTP-Low volume-slow rate-slow read
+│   └── HTTP-Low volume-slow rate-slow read
+│       ├── slow read_1st.pcap
+│       └── slow read_2nd.pcap
+├── Legitimate traffic
+│   └── Legitimate traffic
+│       ├── Constant Packet size and IDP
+│       │   ├── Constant Packet size and IDP_1st
+│       │   │   ├── Constant Packet size and IDP_1-1.pcap
+│       │   │   └── Constant Packet size and IDP_1-2.pcap
+│       │   └── Constant Packet size and IDP_2nd
+│       │       ├── Constant Packet size and IDP_2-1.pcap
+│       │       ├── Constant Packet size and IDP_2-2.pcap
+│       │       └── Constant Packet size and IDP_2-3.pcap
+│       ├── Constant Packet size and Uniformly distributed IDP
+│       │   ├── Constant Packet size and Uniformly distributed IDP_1-1.pcap
+│       │   ├── Constant Packet size and Uniformly distributed IDP_1-2.pcap
+│       │   └── Constant Packet size and Uniformly distributed IDP_1-3.pcap
+│       ├── Constant Packet size and constant_uniform_exponentially__poisson distributed IDP
+│       │   ├── Constant Packet size and mix IDP_1-1.pcap
+│       │   ├── Constant Packet size and mix IDP_1-2.pcap
+│       │   └── Constant Packet size and mix IDP_1-3.pcap
+│       ├── Constant Packet size and exponentially distributed IDP
+│       │   ├── Constant Packet size and exponentially distributed IDP_1-1.pcap
+│       │   └── Constant Packet size and exponentially distributed IDP_1-2.pcap
+│       ├── Constant Packet size and poisson distributed IDP
+│       │   ├── Constant Packet size and poisson distributed IDP_1-1.pcap
+│       │   └── Constant Packet size and poisson distributed IDP_1-2.pcap
+│       └── HTTPERF
+│           ├── httperf_1st.pcap
+│           └── httperf_2nd.pcap
+├── TCP-RST
+│   └── TCP-RST
+│       └── TCP-RST.pcap
+├── TCP-SYN-fast
+│   └── TCP-SYN-fast
+│       ├── tcp syn fast_1st.pcap
+│       ├── tcp syn fast_2nd.pcap
+│       └── tcp syn fast_3rd.pcap
+├── TCP-SYN-flood
+│   └── TCP-SYN-flood
+│       └── tcp syn flood.pcap
+├── TCP-SYN-low
+│   └── TCP-SYN-low
+│       ├── tcp syn low_1st.pcap
+│       └── tcp syn low_2nd.pcap
+├── UDP flood
+│   └── UDP flood
+│       ├── UDP flood.pcap
+│       ├── udp flood random port.pcap
+│       └── udp flood same port.pcap
+├── http flood_get_post_random
+│   └── http flood_get_post_random
+│       ├── http flood get_1st.pcap
+│       ├── http flood get_2nd.pcap
+│       ├── http flood post_1st.pcap
+│       ├── http flood post_2nd.pcap
+│       └── http flood_random.pcap
+└── http low volume low rate
+    └── http low volume low rate
+        ├── http low rate_1st.pcap
+        ├── http low rate_2nd.pcap
+        └── http low rate_3rd.pcap
+
+32 directories, 45 files

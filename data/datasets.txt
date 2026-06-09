@@ -1,0 +1,8 @@
+CIC-DDoS2019 (209G):
+https://www.unb.ca/cic/datasets/ddos-2019.html
+
+DDoS-AT-2022 (36G):
+https://www.kaggle.com/datasets/meenakshimittal/ddos-at-2022?select=Flash+traffic
+
+DITL Trace 04/08:
+https://mawi.wide.ad.jp/mawi/ditl/ditl2026/
