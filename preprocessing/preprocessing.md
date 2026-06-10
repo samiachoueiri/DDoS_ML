@@ -36,6 +36,10 @@ python3 extract_first_n_flow_features.py \
 Same feature extraction as above, but recurses over all `.pcap` files under a directory and concatenates results into a single output CSV. The label for each row is derived from the subdirectory name.
 
 ```bash
+python3 extract_first_n_flow_features_dataset.py --dataset-path "/home/ubuntu/datasets/DDoS-AT-2022/HTTP-Low volume-slow rate-slow header/HTTP-Low volume-slow rate-slow header" --output-file "HTTP-slow-header_first5_features.csv" --n-packets 5
+```
+
+```bash
 python3 extract_first_n_flow_features_dataset.py \
   --dataset-path "/home/ubuntu/datasets/DDoS-AT-2022" \
   --output-file "DDoS_AT_2022_first10_bidirectional_flow_features.csv" \
