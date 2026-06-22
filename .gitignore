@@ -10,6 +10,8 @@
 
 # Feature extraction output
 preprocessing/features_out/
+# Extracted models
+training/models/knn/
 
 # Python
 __pycache__/
