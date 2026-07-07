@@ -9,3 +9,7 @@ find . -type f -path "*/PCAP*/*" ! -name "*.pcap" -exec mv -- {} {}.pcap \;
 to download pcap faster:
 axel -n 8 "http://mawi.nezu.wide.ad.jp/mawi/ditl/ditl2026/202604080000.pcap.gz"
 gunzip 202604080000.pcap.gz
+
+refs:
+https://www.ndss-symposium.org/wp-content/uploads/2023/02/ndss2023_s102_paper.pdf
+https://www.usenix.org/system/files/usenixsecurity25-wu-wenhao.pdf
