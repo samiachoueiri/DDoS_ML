@@ -24,6 +24,16 @@ flow1 = b"pipeline PIPELINE0 regrd flow_id1_0 index 0\n"
 flow2 = b"pipeline PIPELINE0 regrd flow_id2_0 index 0\n"
 flow3 = b"pipeline PIPELINE0 regrd flow_id3_0 index 0\n"
 
+card0 = b"pipeline PIPELINE0 regrd unique_flows_0 index 0\n"
+card1 = b"pipeline PIPELINE1 regrd unique_flows_0 index 0\n"
+card2 = b"pipeline PIPELINE2 regrd unique_flows_0 index 0\n"
+card3 = b"pipeline PIPELINE3 regrd unique_flows_0 index 0\n"
+
+reset_card0= b"pipeline PIPELINE0 regwr unique_flows_0 value 0 index 0\n"
+reset_card1= b"pipeline PIPELINE1 regwr unique_flows_0 value 0 index 0\n"
+reset_card2= b"pipeline PIPELINE2 regwr unique_flows_0 value 0 index 0\n"
+reset_card3= b"pipeline PIPELINE3 regwr unique_flows_0 value 0 index 0\n"
+
 # ht0_tcp = b"pipeline PIPELINE1 regrd ht0 index 0x330C\n"
 # ht1_tcp = b"pipeline PIPELINE1 regrd ht1 index 0x3370\n"
 # ht2_tcp = b"pipeline PIPELINE1 regrd ht2 index 0x33D4\n"
@@ -115,7 +125,7 @@ def telnet_session(host, port, timeout):
                 flow3_hex = string_output.split(' ')[1].strip()
                 flow3_dec = int(flow3_hex, 16)
 
-                print("TCP flow:","h0",flow0_hex,"h1",flow1_hex,"h2",flow2_hex,"h3",flow3_hex)
+                print("TCP flow P0:","h0",flow0_hex,"h1",flow1_hex,"h2",flow2_hex,"h3",flow3_hex)
 
                 # tn.write(ht0_tcp)
                 # output = tn.read_until(b"\n", timeout)
@@ -142,6 +152,43 @@ def telnet_session(host, port, timeout):
                 # ht3_dec = int(ht3_hex, 16)
 
                 # print("TCP count:","h0",ht0_dec,"h1",ht1_dec,"h2",ht2_dec,"h3",ht3_dec)
+                print("------ Cardinality")
+
+                tn.write(card0)
+                output = tn.read_until(b"\n", timeout)
+                string_output = output.decode('utf-8')
+                card0_hex = string_output.split(' ')[1].strip()
+                card0_dec = int(card0_hex, 16)
+
+                tn.write(card1)
+                output = tn.read_until(b"\n", timeout)
+                string_output = output.decode('utf-8')
+                card1_hex = string_output.split(' ')[1].strip()
+                card1_dec = int(card1_hex, 16)
+
+                tn.write(card2)
+                output = tn.read_until(b"\n", timeout)
+                string_output = output.decode('utf-8')
+                card2_hex = string_output.split(' ')[1].strip()
+                card2_dec = int(card2_hex, 16)
+
+                tn.write(card3)
+                output = tn.read_until(b"\n", timeout)
+                string_output = output.decode('utf-8')
+                card3_hex = string_output.split(' ')[1].strip()
+                card3_dec = int(card3_hex, 16)
+
+                print("Unique Flows:","P0",card0_dec,"P1",card1_dec,"P2",card2_dec,"P3",card3_dec)
+
+                tn.write(reset_card0)
+                output = tn.read_until(b"\n", timeout)
+                tn.write(reset_card1)
+                output = tn.read_until(b"\n", timeout)
+                tn.write(reset_card2)
+                output = tn.read_until(b"\n", timeout)
+                tn.write(reset_card3)
+                output = tn.read_until(b"\n", timeout)
+                print("Log: Resetting unique flows counters to 0")
 
                 print("++++++++++++++++++++++++++++++++++++++++++++++++")
                 time.sleep(1/sps)

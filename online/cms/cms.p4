@@ -51,6 +51,7 @@ struct main_metadata_t {
     bit<20> count_1;
     bit<20> count_2;
     bit<20> count_3;
+    bit<20> unique_count;
     bit<20> minimum;    
     bit<20> dif;  
 }
@@ -140,6 +141,8 @@ control MainControlImpl(
     Register<bit<20>, bit<16>>(32768) ht2;
     Register<bit<20>, bit<16>>(32768) ht3;
 
+    Register<bit<20>, bit<1>>(1) unique_flows;
+
     apply {
 
         if(hdr.tcp.isValid()) {
@@ -159,6 +162,11 @@ control MainControlImpl(
             meta.count_1 = ht1.read(meta.flow_id1);
             meta.count_2 = ht2.read(meta.flow_id2);
             meta.count_3 = ht3.read(meta.flow_id3);
+
+            if (meta.count_0 == 0 || meta.count_1 == 0 || meta.count_2 == 0 || meta.count_3 == 0) {
+                meta.unique_count = unique_flows.read(0);
+                unique_flows.write(0, meta.unique_count + 1);
+            }
 
             meta.dif = meta.minimum - meta.count_0;
             if(meta.dif > 0){
