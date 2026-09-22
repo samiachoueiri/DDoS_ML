@@ -1,0 +1,187 @@
+ubuntu@server2:~/dpdk/examples/pipeline$ history
+    1  ls
+    2  cd dpdk/build
+    3  sudo ninja
+    4  sudo ninja install
+    5  sudo ld config
+    6  sudo ldconfig
+    7  ls
+    8  ifconfgi
+    9  ifconfig
+   10  lspci
+   11  ifconfig -a
+   12  ifconfig
+   13  sudo dpdk/examples/pipeline/build/pipeline -c 0x1F -- -s /home/ubuntu/reflector/reflector.cli 
+   14  iperf3 -s
+   15  sudo apt install iperf3
+   16  iperf3 -s
+   17  ifconfig
+   18  iperf3 -s
+   19  ethtool enp7s0np0 | grep -E 'Speed|Duplex|Link'
+   20  ethtool enp8s0np1 | grep -E 'Speed|Duplex|Link'
+   21  sudo dpdk/examples/pipeline/build/pipeline -c 0x1F -- -s /home/ubuntu/reflector/reflector.cli 
+   22  ifconfig
+   23  tcpdump -i enp8s0np1
+   24  sudo tcpdump -i enp8s0np1
+   25  ethtool -i 0000:08:00.0 | grep bus-info
+   26  ethtool -i 08:00.0 | grep bus-info
+   27  ethtool -i enp8s0np1 | grep bus-info
+   28  dpdk-devbind.py --status
+   29  devlink dev eswitch show pci/0000:08:00.0
+   30  sudo devlink dev eswitch show pci/0000:08:00.0
+   31  sudo dpdk-devbind.py --status
+   32  ps aux | grep -i pip
+   33  ps aux | grep -i p
+   34  ps aux | grep -i pipe
+   35  ps aux | grep -i pipeline
+   36  sudo fuser -v /dev/infiniband/*
+   37  sudo ethtool -i enp8s0np1 | grep bus-info
+   38  sudo ethtool -i enp7s0np0 | grep bus-info
+   39  sudo dpdk-testpmd -a 0000:08:00.0 -- -i --rxq=1 --txq=1
+   40  systemctl list-units | grep -i p4
+   41  systemctl list-units | grep -i dpdk
+   42  history | grep -i p4
+   43  find / -iname "*p4*" -type f 2>/dev/null | grep -v /proc
+   44  grep -r "08:00.0\|enp8s0np1\|dev_args\|pci" /path/to/your/p4-dpdk/config/ 2>/dev/null
+   45  grep -n "ethdev" /home/ubuntu/reflector/reflector.cli
+   46  ip link show > /tmp/before_links.txt
+   47  dpdk-devbind.py --status > /tmp/before_devbind.txt
+   48  sudo devlink dev eswitch show pci/0000:08:00.0
+   49  sudo devlink dev eswitch set pci/0000:08:00.0 mode switchdev
+   50  ip link show
+   51  dpdk-devbind.py --status
+   52  sudo devlink dev eswitch show pci/0000:08:00.0
+   53  sudo fuser -v /dev/infiniband/*
+   54  sudo dpdk-testpmd -a 0000:08:00.0 -- -i --rxq=1 --txq=1
+   55  sudo dpdk/examples/pipeline/build/pipeline -c 0x1F -- -s /home/ubuntu/reflector/reflector.cli
+   56  lspci | grep -i mellanox
+   57  lspci -D | grep -i mellanox
+   58  sudo dpdk/examples/pipeline/build/pipeline -c 0x1F -- -s /home/ubuntu/reflector/reflector.cli
+   59  dmesg | tail -50
+   60  dpkg -l | grep -i rdma-core
+   61  dpkg -l | grep -i ibverbs
+   62  sudo dpdk/examples/pipeline/build/pipeline -c 0x1F -- -s /home/ubuntu/reflector/reflector.cli
+   63  sudo dpdk-testpmd --proc-type=secondary --file-prefix=rte -- -i
+   64  ls /var/run/dpdk/
+   65  sudo ls /var/run/dpdk/
+   66  ps aux | grep pipeline
+   67  dpdk-testpmd -v 2>&1 | head -5
+   68  dpdk-testpmd --version
+   69  which dpdk-testpmd
+   70  strings /path/to/your/pipeline/binary | grep -i "DPDK \|RTE_VER"
+   71  strings /home/ubuntu/dpdk/examples/pipeline/build/pipeline | grep -i "RTE_VER\|DPDK 2"
+   72  file /home/ubuntu/dpdk/examples/pipeline/build/pipeline
+   73  readlink -f /home/ubuntu/dpdk/examples/pipeline/build/pipeline
+   74  file $(readlink -f /home/ubuntu/dpdk/examples/pipeline/build/pipeline)
+   75  ldd $(readlink -f /home/ubuntu/dpdk/examples/pipeline/build/pipeline)
+   76  ldd /usr/local/bin/dpdk-testpmd | grep librte
+   77  file /usr/local/bin/dpdk-testpmd
+   78  ldd /usr/local/bin/dpdk-testpmd
+   79  find /home/ubuntu/dpdk -iname "*testpmd*" -type f
+   80  ldd $(find /home/ubuntu/dpdk -iname "dpdk-testpmd" -type f | head -1) | grep librte
+   81  file /home/ubuntu/dpdk/build/app/dpdk-testpmd
+   82  ldd /home/ubuntu/dpdk/build/app/dpdk-testpmd
+   83  find /home/ubuntu/dpdk/build -iname "*testpmd*" -type f -executable
+   84  cd /home/ubuntu/dpdk
+   85  meson configure build | grep -i default_library
+   86  meson configure build -Ddefault_library=shared
+   87  sudo meson configure build -Ddefault_library=shared
+   88  sudo ninja -C build
+   89  cd
+   90  history
+   91  sudo dpdk-testpmd --proc-type=secondary --file-prefix=rte -- -i
+   92  ldd /home/ubuntu/dpdk/build/app/dpdk-testpmd | grep librte
+   93  diff <(readlink -f /home/ubuntu/dpdk/build/lib/librte_eal.so.24) <(readlink -f /usr/local/lib/x86_64-linux-gnu/librte_eal.so.24) && echo "same target" || echo "different files"
+   94  md5sum /home/ubuntu/dpdk/build/lib/librte_eal.so.24.* /usr/local/lib/x86_64-linux-gnu/librte_eal.so.24.*
+   95  sudo ninja -C /home/ubuntu/dpdk/build install
+   96  sudo ldconfig
+   97  md5sum /home/ubuntu/dpdk/build/lib/librte_eal.so.24.2 /usr/local/lib/x86_64-linux-gnu/librte_eal.so.24.2
+   98  sudo ninja -C /home/ubuntu/dpdk/build install 2>&1 | grep -i "librte_eal"
+   99  ls -la /usr/local/lib/x86_64-linux-gnu/librte_eal.so.24.2
+  100  file /usr/local/lib/x86_64-linux-gnu/librte_eal.so.24.2
+  101  md5sum /home/ubuntu/dpdk/build/lib/librte_eal.so.24.2 /usr/local/lib/x86_64-linux-gnu/librte_eal.so.24.2
+  102  ls -la /usr/local/lib/x86_64-linux-gnu/librte_eal.so.24.2
+  103  realpath /usr/local/lib/x86_64-linux-gnu/librte_eal.so.24.2
+  104  mount | grep -i "usr/local"
+  105  findmnt /usr/local/lib/x86_64-linux-gnu 2>/dev/null
+  106  echo "--- build tree ---"; date; sha256sum /home/ubuntu/dpdk/build/lib/librte_eal.so.24.2; stat /home/ubuntu/dpdk/build/lib/librte_eal.so.24.2 | grep Modify
+  107  echo "--- installed ---"; sha256sum /usr/local/lib/x86_64-linux-gnu/librte_eal.so.24.2; stat /usr/local/lib/x86_64-linux-gnu/librte_eal.so.24.2 | grep Modify
+  108  file /home/ubuntu/dpdk/build/lib/librte_eal.so.24.2
+  109  file /usr/local/lib/x86_64-linux-gnu/librte_eal.so.24.2
+  110  readelf -n /home/ubuntu/dpdk/build/lib/librte_eal.so.24.2 | grep "Build ID"
+  111  readelf -n /usr/local/lib/x86_64-linux-gnu/librte_eal.so.24.2 | grep "Build ID"
+  112  sudo fuser -v /dev/infiniband/*
+  113  sudo /home/ubuntu/dpdk/build/app/dpdk-testpmd --proc-type=secondary --file-prefix=rte -- -i
+  114  echo $LD_LIBRARY_PATH
+  115  readelf -d /home/ubuntu/dpdk/build/app/dpdk-testpmd | grep -i "rpath\|runpath"
+  116  sudo find / -xdev -type d -iname "pmds-24.2" 2>/dev/null
+  117  ls /home/ubuntu/dpdk/build/drivers/librte_bus_pci* 2>/dev/null
+  118  ls /usr/local/lib/x86_64-linux-gnu/librte_bus_pci* 2>/dev/null
+  119  ls /usr/local/lib/x86_64-linux-gnu/dpdk/pmds-24.2/librte_bus_pci* 2>/dev/null
+  120  sudo /home/ubuntu/dpdk/build/app/dpdk-testpmd -d /home/ubuntu/dpdk/build/drivers -- -i
+  121  nm -D /home/ubuntu/dpdk/build/drivers/librte_bus_pci.so.24.2 2>/dev/null | grep -i uio_tailq
+  122  nm -D /usr/local/lib/x86_64-linux-gnu/dpdk/pmds-24.2/librte_bus_pci.so.24.2 2>/dev/null | grep -i uio_tailq
+  123  sudo /home/ubuntu/dpdk/build/app/dpdk-testpmd -d /home/ubuntu/dpdk/build/drivers -- -i
+  124  sudo mv /usr/local/lib/x86_64-linux-gnu/dpdk/pmds-24.2 /usr/local/lib/x86_64-linux-gnu/dpdk/pmds-24.2.bak
+  125  sudo /home/ubuntu/dpdk/build/app/dpdk-testpmd -- -i
+  126  sudo mv /usr/local/lib/x86_64-linux-gnu/dpdk/pmds-24.2.bak /usr/local/lib/x86_64-linux-gnu/dpdk/pmds-24.2
+  127  sudo /home/ubuntu/dpdk/build/app/dpdk-testpmd -- -i
+  128  sudo /home/ubuntu/dpdk/build/app/dpdk-testpmd --no-shconf -d /home/ubuntu/dpdk/build/drivers -- -i --huge-dir=/dev/hugepages
+  129  sudo /home/ubuntu/dpdk/build/app/dpdk-testpmd --help 2>&1 | grep -A2 "\-d "
+  130  find /home/ubuntu/dpdk/examples/pipeline -iname "*.c" -o -iname "*.h" | xargs grep -l "cmdline\|cli" 2>/dev/null
+  131  grep -rn "cmdline_parse_inst_t\|rte_flow_create" /home/ubuntu/dpdk/examples/pipeline/
+  132  cat /home/ubuntu/dpdk/examples/pipeline/cli.h
+  133  grep -n "cli_process\|cli_cmd\|strcmp\|struct.*cmd" /home/ubuntu/dpdk/examples/pipeline/cli.c | head -50
+  134  grep -rn "#include" /home/ubuntu/dpdk/examples/pipeline/cli.c | head -20
+  135  grep -n "port_id\|struct.*port\|ethdev" /home/ubuntu/dpdk/examples/pipeline/main.c | head -30
+  136  sed -n '280,380p' /home/ubuntu/dpdk/examples/pipeline/cli.c
+  137  grep -n "^cli_process\|static void\|static int" /home/ubuntu/dpdk/examples/pipeline/cli.c | head -40
+  138  cat /home/ubuntu/dpdk/examples/pipeline/obj.h | head -60
+  139  grep -n "ethdev_config" /home/ubuntu/dpdk/examples/pipeline/obj.c
+  140  sed -n '/^ethdev_config/,/^}/p' /home/ubuntu/dpdk/examples/pipeline/obj.c
+  141  grep -n "\"ethdev\"\|cmd_ethdev\|cli_process" /home/ubuntu/dpdk/examples/pipeline/cli.c
+  142  cat /home/ubuntu/dpdk/examples/pipeline/meson.build
+  143  mkdir -p ~/pipeline_backup_$(date +%Y%m%d_%H%M%S)
+  144  BACKUP_DIR=$(ls -d ~/pipeline_backup_* | tail -1)
+  145  echo "Backing up to: $BACKUP_DIR"
+  146  cp /home/ubuntu/dpdk/examples/pipeline/obj.h "$BACKUP_DIR/"
+  147  cp /home/ubuntu/dpdk/examples/pipeline/obj.c "$BACKUP_DIR/"
+  148  cp /home/ubuntu/dpdk/examples/pipeline/cli.c "$BACKUP_DIR/"
+  149  cp /home/ubuntu/dpdk/examples/pipeline/main.c "$BACKUP_DIR/"
+  150  ls -la "$BACKUP_DIR"
+  151  ls
+  152  cd pipeline_backup_20260918_023947/
+  153  ls
+  154  cd
+  155  zip -r pipeline_backup.zip "$BACKUP_DIR"
+  156  sudo apt install zip
+  157  zip -r pipeline_backup.zip "$BACKUP_DIR"
+  158  ls
+  159  pwd
+  160  grep -n "arpa/inet" /home/ubuntu/dpdk/examples/pipeline/obj.c
+  161  grep -n "parser_read_uint16" /home/ubuntu/dpdk/examples/pipeline/cli.c
+  162  diff /home/ubuntu/dpdk/examples/pipeline/cli.c ~/pipeline_backup_*/cli.c
+  163  cd /home/ubuntu/dpdk
+  164  ninja -C build
+  165  ls -la /home/ubuntu/dpdk/examples/pipeline/cli.c
+  166  ls -la /home/ubuntu/dpdk/examples/pipeline/obj.c
+  167  ls -la /home/ubuntu/dpdk/examples/pipeline/obj.h
+  168  grep -n "parser_read_uint16\|flow_add\|flow_del" /home/ubuntu/dpdk/examples/pipeline/cli.c
+  169  touch examples/pipeline/cli.c examples/pipeline/obj.c examples/pipeline/obj.h
+  170  ninja -C build
+  171  cd..
+  172  cd
+  173  cd /home/ubuntu/dpdk
+  174  meson configure build | grep -i examples
+  175  cd build
+  176  ninja -t query examples/pipeline/cli.c.o 2>&1 | head -20
+  177  grep -n "cli.c" build.ninja | head -10
+  178  grep -n "pipeline-shared" build.ninja | head -10
+  179  cd /home/ubuntu/dpdk/examples/pipeline
+  180  make
+  181  sudo make
+  182  ls -la /home/ubuntu/dpdk/examples/pipeline/build/pipeline-shared
+  183  time
+  184  date
+  185  history
+ubuntu@server2:~/dpdk/examples/pipeline$ 
