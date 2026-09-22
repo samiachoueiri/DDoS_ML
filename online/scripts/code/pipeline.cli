@@ -1,0 +1,41 @@
+; Pipeline code generation & shared object library build.
+pipeline codegen /home/ubuntu/features_extract.spec /tmp/features_extract.c
+pipeline libbuild /tmp/features_extract.c /tmp/features_extract.so
+
+pipeline codegen /home/ubuntu/classifier.spec /tmp/classifier.c
+pipeline libbuild /tmp/classifier.c /tmp/classifier.so
+
+; List of DPDK devices.
+mempool MEMPOOL0 meta 4096 pkt 9500 pool 128K cache 512 numa 0
+;mempool MEMPOOL0 meta 0 pkt 9128 pool 32K cache 256 numa 0
+
+; List DPDK ethernet devices
+ethdev 0000:07:00.0 rxq 1 1024 MEMPOOL0 txq 1 1024 promiscuous on
+ethdev 0000:08:00.0 rxq 1 1024 MEMPOOL0 txq 1 1024 promiscuous on
+;ethdev net_tap0 rxq 1 128 MEMPOOL0 txq 1 1024 promiscuous on
+;ethdev net_tap1 rxq 1 128 MEMPOOL0 txq 1 1024 promiscuous on
+
+; Create Ring Buffers for Inter-Pipeline Communication
+ring RING0 size 1024 numa 0
+
+; List of pipelines.
+pipeline PIPELINE0 build lib /tmp/features_extract.so io /home/ubuntu/pipeline1.io numa 0
+pipeline PIPELINE1 build lib /tmp/classifier.so io /home/ubuntu/pipeline2.io numa 0
+
+
+; Load MAT rules
+pipeline PIPELINE1 table min_diffLen_table add /home/ubuntu/rules_min_differential_packet_length.txt
+pipeline PIPELINE1 table max_diffLen_table add /home/ubuntu/rules_max_differential_packet_length.txt
+pipeline PIPELINE1 table min_IAT_table add /home/ubuntu/rules_iat_min.txt
+pipeline PIPELINE1 table max_IAT_table add /home/ubuntu/rules_iat_max.txt
+pipeline PIPELINE1 table packet_length_total_table add /home/ubuntu/rules_packet_length_total.txt
+pipeline PIPELINE1 table code_table0 add /home/ubuntu/rules_code_table0.txt
+pipeline PIPELINE1 table code_table1 add /home/ubuntu/rules_code_table1.txt
+pipeline PIPELINE1 table code_table2 add /home/ubuntu/rules_code_table2.txt
+pipeline PIPELINE1 table voting_table add /home/ubuntu/rules_voting_table.txt
+pipeline PIPELINE1 commit
+
+; Pipelines-to-threads mapping.
+pipeline PIPELINE0 enable thread 1
+pipeline PIPELINE1 enable thread 1
+
