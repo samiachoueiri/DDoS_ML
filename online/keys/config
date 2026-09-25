@@ -1,0 +1,90 @@
+Host BF_POD
+  HostName 10.173.85.235
+  User admin
+
+Host PC1_BF_POD
+  HostName 10.173.85.231
+  User administrator
+
+Host PC2_BF_POD
+  HostName 10.173.85.227
+  User administrator
+
+
+Host P4-DPDK_VM
+  HostName 10.173.78.104
+  User admin
+
+Host P4-DPDK_V2
+  HostName 10.173.78.72
+  User admin
+
+Host P4-DPDK_SEC_VM
+  HostName 10.173.78.61
+  User admin
+
+Host P4-DPDK_SEC_VM_test
+  HostName 10.173.78.76
+  User admin
+
+Host P4-DPDK_testPOD
+  HostName 10.173.78.144
+  User admin
+
+Host DOCA_VM1
+  HostName 10.173.85.220
+  User user
+
+Host bastion.fabric-testbed.net
+    User choueiri_0000118746
+    ForwardAgent yes
+    Hostname %h
+    IdentityFile C:\Users\choueiri\.ssh\fabric_bastion_key
+    IdentitiesOnly yes
+    UserKnownHostsFile /dev/null
+    StrictHostKeyChecking no
+    ServerAliveInterval 120
+
+Host fabric_P4DPDKJournal_server_1
+  HostName 137.222.230.34
+  User ubuntu
+  IdentityFile C:\Users\choueiri\.ssh\slice_key
+  ProxyJump choueiri_0000118746@bastion.fabric-testbed.net:22
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  ServerAliveInterval 120
+
+Host fabric_P4DPDKJournal_server_2
+  HostName 137.222.230.38
+  User ubuntu
+  IdentityFile C:\Users\choueiri\.ssh\slice_key
+  ProxyJump choueiri_0000118746@bastion.fabric-testbed.net:22
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  ServerAliveInterval 120
+
+Host fabric_P4DPDKJournal_server_3
+  HostName 137.222.230.14
+  User ubuntu
+  IdentityFile C:\Users\choueiri\.ssh\slice_key
+  ProxyJump choueiri_0000118746@bastion.fabric-testbed.net:22
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  ServerAliveInterval 120
+
+Host fabric_GPU
+  HostName 2001:468:c00:ffc4:f816:3eff:fe68:fe77
+  User ubuntu
+  IdentityFile C:\Users\choueiri\.ssh\slice_key
+  ProxyJump choueiri_0000118746@bastion.fabric-testbed.net:22
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  ServerAliveInterval 120
+
+Host zeek_VM
+  HostName 10.173.78.68
+  User admin
+
+Host ml_VM
+  HostName 10.173.78.74
+  User admin
