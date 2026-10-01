@@ -1,0 +1,16 @@
+cd C:\Users\choueiri\.ssh
+
+icacls config /inheritance:r
+icacls config /grant:r "%USERNAME%:(F)"
+icacls config /remove "DS\CEEIT"
+icacls config
+
+icacls fabric_bastion_key /inheritance:r
+icacls fabric_bastion_key /grant:r "%USERNAME%:(F)"
+icacls fabric_bastion_key /remove "DS\CEEIT"
+
+icacls slice_key /inheritance:r
+icacls slice_key /grant:r "%USERNAME%:(F)"
+icacls slice_key /remove "DS\CEEIT"
+
+ssh fabric_GPU
