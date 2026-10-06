@@ -12,6 +12,9 @@ Walks a dataset directory, opens every `.pcap` file with Scapy, and counts uniqu
 python3 count_unique_flows.py \
   --dataset-path "/home/ubuntu/datasets/DDoS-AT-2022" \
   --output-file "count_unique_flows-DDoS-AT-2022.csv"
+
+python3 count_unique_flows.py --dataset-path "/home/ubuntu/datasets/CICDDoS2019" --output-file "count_unique_flows-CICDDoS2019.csv"
+python3 count_unique_flows.py --dataset-path "/home/ubuntu/datasets/mawi" --output-file "count_unique_flows-mawi.csv"
 ```
 
 ---

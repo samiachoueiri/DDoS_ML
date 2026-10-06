@@ -13,6 +13,12 @@ preprocessing/features_out/
 # Extracted models
 training/models/knn/
 
+# Preprocessing outputs
+preprocessing/count_unique_flows-CICDDoS2019.csv
+
+# Zeek output
+zeek/zeek_out_*/
+
 # Python
 __pycache__/
 *.py[cod]

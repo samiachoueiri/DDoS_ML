@@ -1,0 +1,20 @@
+== Processing /home/ubuntu/datasets/mawi/202604080000.pcap
+== Logs will be written to /home/ubuntu/DDoS_ML/zeek/zeek_out_202604080000
+
+Total flows:          61561585
+Unique 5-tuples:      58561148
+Total packets:        154692178
+TCP / UDP / ICMP:     27628154 / 5640566 / 28292824
+
+== Top 10 flows by packet count
+UID                SOURCE                                   DESTINATION                                 PROTO               ORIG_PKTS  RESP_PKTS   TOTAL
+CDOmKr32YOiR8gG4tl 150.189.11.31:0                          210.123.203.73:0                            unknown_transport   12227163   135         12227298
+C9TeTm4AVZ1NlKJFu9 45.68.15.135:11238                       133.203.68.18:61720                         udp                 2392337    0           2392337
+CFKL7b2Y7SX5IeS2L6 150.189.22.41:35025                      23.46.32.96:443                             tcp                 937595     725658      1663253
+CJfe7F16DhBjc2yIU5 185.124.191.37:873                       150.189.15.185:33298                        tcp                 955306     496910      1452216
+CSQoHhMhDPnNYt11   150.189.22.41:57875                      23.46.32.115:443                            tcp                 751962     652920      1404882
+Cjha9v4kgtUrrlk6Wi 150.189.22.41:25070                      23.46.32.115:443                            tcp                 735822     646141      1381963
+CiGDnq1p0UNpoKUbE4 2620:ff2d:2f6:ffe:1a00:4bf:e1e7:2c7:873  2001:44f8:454:ffb9:fb00:5ef:f9e7:4139:44736 tcp                 1354242    24776       1379018
+CmwS7RRRl8vbQMro6  206.175.114.10:58231                     133.199.98.248:5010                         udp                 1070088    0           1070088
+CMnx2J1SwdW64uyohg 150.189.111.130:62823                    172.188.206.102:443                         tcp                 201186     623122      824308
+CGmGvn4pPYLV2QfrUl 129.224.16.227:4033                      150.189.111.243:64097                       udp                 818791     0           818791
