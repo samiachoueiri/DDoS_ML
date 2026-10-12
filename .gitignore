@@ -12,9 +12,12 @@
 preprocessing/features_out/
 # Extracted models
 training/models/knn/
+offline/models
+offline/results
 
 # Preprocessing outputs
 preprocessing/count_unique_flows-CICDDoS2019.csv
+preprocessing/*.log
 
 # Zeek output
 zeek/zeek_out_*/
@@ -35,3 +38,6 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude
+CLAUDE.md
