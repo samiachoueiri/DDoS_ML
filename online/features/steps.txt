@@ -1,0 +1,14 @@
+On server 2:
+
+- compile p4 code:
+cd /home/ubuntu/features && p4c-dpdk --arch pna features.p4 -o features.spec && cd
+
+- run p4-dpdk pipeline:
+sudo dpdk/examples/pipeline/build/pipeline -c 0x1F -- -s /home/ubuntu/features/features.cli
+python3 features/telnet.py     # in a second terminal, while replaying the pcap
+
+On server 1:
+sudo tcpreplay -i enp7s0np0 test_flows.pcap
+sudo tcpreplay -i enp7s0np0 --limit=3 test_flows.pcap # to test only with few packets
+
+
