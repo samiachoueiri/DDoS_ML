@@ -151,4 +151,3 @@ Known differences from the offline extractor:
   packet length, minimum and mean IAT, duration, and TCP flag counts.
 - Export the 5-tuple (or the flow-ID-to-5-tuple mapping) with each row, and
   compare automatically with `make_test_pcap.compare()` instead of by eye.
-- Add `telnet.py` to this folder.
