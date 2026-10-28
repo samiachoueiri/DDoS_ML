@@ -1,2 +1,2 @@
 _scenario,src_ip,dst_ip,src_port,dst_port,protocol,packet_count,duration,total_bytes,packets_per_second,bytes_per_second,packet_length_min,packet_length_max,packet_length_mean,packet_length_std,iat_min,iat_max,iat_mean,iat_std,tcp_syn_count,tcp_ack_count,tcp_fin_count,tcp_rst_count,tcp_psh_count,tcp_urg_count,label
-tcp_exact_n,10.0.0.1,10.0.0.2,40001,80,TCP,4,0.005749940872192383,2244,695.6593274453705,390264.88269685284,66,1514,561,680.9904551460321,0.0004999637603759766,0.003999948501586914,0.001916646957397461,0.0018427583435608327,1,3,1,0,1,0,test
+tcp_exact_n,10.0.0.1,10.0.0.2,40001,80,TCP,4,5750,2244,695.6521739130435,390260.8695652174,66,1514,561,680.9904551460321,500,4000,1916.6666666666667,1842.7786989579984,1,3,1,0,1,0,test

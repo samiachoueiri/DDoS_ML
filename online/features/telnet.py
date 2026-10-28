@@ -1,4 +1,5 @@
 import csv
+import ipaddress
 import re
 import telnetlib
 import time
@@ -20,6 +21,20 @@ batch_size = 1000
 REG_LAST_FLOW_ID = "reg_last_flow_id_0"
 REG_UNIQUE_FLOWS = "reg_unique_flows_0"
 REG_FLOW_LIST = "reg_flow_list_0"
+
+def ip_str(value):
+    return str(ipaddress.IPv4Address(value))
+
+
+# Flow key (5-tuple) columns, written once on each flow's first packet: (column, register, formatter).
+# Protocol stays numeric (6 = TCP, 17 = UDP, 1 = ICMP), as most offline extractors write it.
+KEY_FIELDS = [
+    ("src_ip", "reg_src_ip_0", ip_str),
+    ("dst_ip", "reg_dst_ip_0", ip_str),
+    ("proto", "reg_proto_0", int),
+    ("src_port", "reg_src_port_0", int),
+    ("dst_port", "reg_dst_port_0", int),
+]
 
 # One CSV column per per-flow register (indexed by flow_id).
 # To add a feature: add its register in features.p4, then add a line here.
@@ -64,13 +79,18 @@ def dump_csv(tn):
     print(f"Dumping {n_flows} flows to {csv_path} ...")
 
     flow_ids = regrd_many(tn, REG_FLOW_LIST, list(range(n_flows)))
+    keys = {name: [fmt(v) for v in regrd_many(tn, reg, flow_ids)] for name, reg, fmt in KEY_FIELDS}
     columns = {name: regrd_many(tn, reg, flow_ids) for name, reg in FEATURES}
 
+    key_names = [name for name, _, _ in KEY_FIELDS]
+    feature_names = [name for name, _ in FEATURES]
     with open(csv_path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["flow_id"] + [name for name, _ in FEATURES])
+        writer.writerow(["flow_id"] + key_names + feature_names)
         for row, flow_id in enumerate(flow_ids):
-            writer.writerow([flow_id] + [columns[name][row] for name, _ in FEATURES])
+            writer.writerow([flow_id]
+                            + [keys[name][row] for name in key_names]
+                            + [columns[name][row] for name in feature_names])
 
     print(f"Wrote {n_flows} rows to {csv_path}")
 
@@ -87,12 +107,14 @@ def telnet_session(host, port, timeout):
             while True:
                 unique_flows = regrd(tn, REG_UNIQUE_FLOWS, 0)
                 last_flow_id = regrd(tn, REG_LAST_FLOW_ID, 0)
+                key = {name: fmt(regrd(tn, reg, last_flow_id)) for name, reg, fmt in KEY_FIELDS}
                 last_flow = {name: regrd(tn, reg, last_flow_id) for name, reg in FEATURES}
 
                 print("------ Flows")
                 print("Unique flows seen:", unique_flows)
                 print("Last flow_id:", hex(last_flow_id),
-                      " ".join(f"{name}: {value}" for name, value in last_flow.items()))
+                      f"{key['src_ip']}:{key['src_port']} -> {key['dst_ip']}:{key['dst_port']} proto {key['proto']}")
+                print("  ", " ".join(f"{name}: {value}" for name, value in last_flow.items()))
                 print("++++++++++++++++++++++++++++++++++++++++++++++++")
                 time.sleep(1/sps)
 

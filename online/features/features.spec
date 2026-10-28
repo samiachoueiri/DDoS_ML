@@ -9,6 +9,11 @@
 
 
 
+
+
+
+
+
 struct ethernet_t {
 	bit<48> dstAddr
 	bit<48> srcAddr
@@ -101,6 +106,11 @@ regarray reg_total_bytes_0 size 0x100000 initval 0
 regarray reg_max_pkt_len_0 size 0x100000 initval 0
 regarray reg_last_ts_0 size 0x100000 initval 0
 regarray reg_max_iat_0 size 0x100000 initval 0
+regarray reg_src_ip_0 size 0x100000 initval 0
+regarray reg_dst_ip_0 size 0x100000 initval 0
+regarray reg_proto_0 size 0x100000 initval 0
+regarray reg_src_port_0 size 0x100000 initval 0
+regarray reg_dst_port_0 size 0x100000 initval 0
 regarray reg_last_flow_id_0 size 0x1 initval 0
 regarray reg_unique_flows_0 size 0x1 initval 0
 regarray reg_flow_list_0 size 0x100000 initval 0
@@ -151,6 +161,11 @@ apply {
 	mov m.MainControlT_tmp_14 m.MainControlT_n_flows
 	add m.MainControlT_tmp_14 0x1
 	regwr reg_unique_flows_0 0x0 m.MainControlT_tmp_14
+	regwr reg_src_ip_0 m.local_metadata_flow_id h.ipv4.srcAddr
+	regwr reg_dst_ip_0 m.local_metadata_flow_id h.ipv4.dstAddr
+	regwr reg_proto_0 m.local_metadata_flow_id h.ipv4.protocol
+	regwr reg_src_port_0 m.local_metadata_flow_id m.local_metadata_src_port
+	regwr reg_dst_port_0 m.local_metadata_flow_id m.local_metadata_dst_port
 	LABEL_END_0 :	regrd m.local_metadata_npkt_count reg_npkt_count_0 m.local_metadata_flow_id
 	jmplt LABEL_TRUE_1 m.local_metadata_npkt_count 0x5
 	jmp LABEL_END_1

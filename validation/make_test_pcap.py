@@ -194,6 +194,7 @@ def protocol_name(proto):
 
 
 def expected_row(sc, pkt_ts, idx):
+    """pkt_ts: integer microseconds. Timing features (duration, iat_*) are in us."""
     ts = [pkt_ts[i] for i in idx]
     lens = [sc["packets"][i][1] for i in idx]
     flags = [sc["packets"][i][2] for i in idx]
@@ -214,8 +215,8 @@ def expected_row(sc, pkt_ts, idx):
         "packet_count": count,
         "duration": dur,
         "total_bytes": total,
-        "packets_per_second": count / dur if dur > 0 else 0,
-        "bytes_per_second": total / dur if dur > 0 else 0,
+        "packets_per_second": count * 1_000_000 / dur if dur > 0 else 0,
+        "bytes_per_second": total * 1_000_000 / dur if dur > 0 else 0,
         "packet_length_min": min(lens), "packet_length_max": max(lens),
         "packet_length_mean": mean(lens), "packet_length_std": std(lens),
         "iat_min": min(iats) if iats else 0, "iat_max": max(iats) if iats else 0,
@@ -280,7 +281,6 @@ def expected_for_n(n, n_max, flows=None):
     rows = []
     for sc in select(scenarios(n_max), flows):
         pkt_ts = [to_usec(t) for (t, _, _) in sc["packets"]]
-        pkt_ts_float = [BASE_TS + us / 1e6 for us in pkt_ts]
 
         segs = sc["segments"]
         if sc["name"] == "udp_incomplete":
@@ -289,7 +289,7 @@ def expected_for_n(n, n_max, flows=None):
             if len(seg) < n:
                 continue
             idx = seg[:n]
-            row = expected_row(sc, pkt_ts_float, idx)
+            row = expected_row(sc, pkt_ts, idx)
             row["_scenario"] = sc["name"]
             row["_emit_us"] = pkt_ts[idx[-1]]
             rows.append(row)

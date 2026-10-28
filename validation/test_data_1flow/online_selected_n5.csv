@@ -1,0 +1,2 @@
+flow_id,src_ip,dst_ip,proto,src_port,dst_port,packets,npackets,total_bytes,max_pkt_len,max_iat_us
+983881,10.0.0.1,10.0.0.2,6,40001,80,32,5,2304,1514,20104

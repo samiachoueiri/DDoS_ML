@@ -57,14 +57,21 @@ expected features. Each N should print `PASS`.
 
 ## Comparing online results
 
-Save the online features as a CSV with the same column names, then run:
+For the 3 features the P4 program computes, use `extract_selected_features.py`.
+It runs the offline extractor, matches rows with the online CSV by 5-tuple, and
+prints a drift report (exact match for bytes and lengths, a tolerance for IAT):
 
 ```bash
-python3 -c "import make_test_pcap as m; m.compare('test_data_1flow/expected_features_n3.csv', 'online_n3.csv', abs_tol=1e-4)"
+python3 extract_selected_features.py --pcap-file test_data_1flow/test_flows.pcap \
+  --online-file test_data_1flow/online_selected_n5.csv
 ```
 
-Rows are matched by 5-tuple. Any row that is missing, extra, or has a different
-value is printed.
+To compare a CSV that has all the training columns, use `compare()`. It applies
+one tolerance to every column, so keep it strict:
+
+```bash
+python3 -c "import make_test_pcap as m; m.compare('test_data_1flow/expected_features_n3.csv', 'other_n3.csv')"
+```
 
 ## Replaying on the testbed
 
@@ -160,9 +167,10 @@ With Pktgen 24.07.1 and DPDK 24.07.0-rc4, `-s` failed at startup with
 
 - Packet length is the full Ethernet frame without the checksum (FCS). Every
   frame is at least 60 bytes, so replaying doesn't add padding.
-- Timing values in the expected CSVs carry small floating-point noise, for
-  example `0.002000093` instead of `0.002`. The offline extractor has the same
-  noise. Use `abs_tol` of at least `1e-6` for timing columns. After a replay, use
-  a larger tolerance to allow for timing jitter.
+- Timing features (`duration`, `iat_*`) are in integer microseconds, the same
+  unit the P4 program uses, so offline and online values compare directly
+  (for example `iat_max = 20000`). `packets_per_second` and `bytes_per_second`
+  are still per second. After a replay, use a tolerance of a few hundred µs on
+  timing columns to allow for replay jitter.
 - Flows are one-directional and use a 120 s timeout, the same settings as the
   training data.

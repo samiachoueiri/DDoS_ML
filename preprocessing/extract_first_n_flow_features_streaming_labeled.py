@@ -384,6 +384,21 @@ def safe_stdev(values):
     return statistics.stdev(values) if len(values) > 1 else 0
 
 
+USEC_PER_SEC = 1_000_000
+
+
+def to_usec(ts):
+    """
+    PCAP timestamp (float seconds) -> integer microseconds.
+
+    Timing features (duration, iat_*) are in microseconds, the unit the P4
+    data plane measures in, so no conversion is needed between training and
+    online inference. Rounding recovers the exact capture value for
+    microsecond-resolution PCAPs (float error at epoch times is ~0.1 us).
+    """
+    return round(ts * USEC_PER_SEC)
+
+
 def safe_min(values):
     return min(values) if values else 0
 
@@ -399,7 +414,8 @@ def extract_features(flow_key, packets, label, label_source="manual", csv_match_
 
     src_ip, dst_ip, src_port, dst_port, protocol = flow_key
 
-    timestamps = [p["timestamp"] for p in packets]
+    # Integer microseconds: duration and IATs below are in us.
+    timestamps = [to_usec(p["timestamp"]) for p in packets]
     lengths = [p["packet_length"] for p in packets]
 
     duration = timestamps[-1] - timestamps[0] if len(timestamps) > 1 else 0
@@ -411,8 +427,8 @@ def extract_features(flow_key, packets, label, label_source="manual", csv_match_
     total_bytes = sum(lengths)
     packet_count = len(packets)
 
-    packets_per_second = packet_count / duration if duration > 0 else 0
-    bytes_per_second = total_bytes / duration if duration > 0 else 0
+    packets_per_second = packet_count * USEC_PER_SEC / duration if duration > 0 else 0
+    bytes_per_second = total_bytes * USEC_PER_SEC / duration if duration > 0 else 0
 
     tcp_syn_count = 0
     tcp_ack_count = 0

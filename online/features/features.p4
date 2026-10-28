@@ -189,6 +189,14 @@ control MainControlImpl(
     Register<timestamp_t, flow_id_t>(FLOW_TABLE_SIZE) reg_last_ts;
     Register<timestamp_t, flow_id_t>(FLOW_TABLE_SIZE) reg_max_iat;
 
+    // Flow key (5-tuple), written on the flow's first packet so the CSV can be matched against
+    // an offline extractor. If two flows collide on one slot, this holds the first flow's tuple.
+    Register<bit<32>, flow_id_t>(FLOW_TABLE_SIZE) reg_src_ip;
+    Register<bit<32>, flow_id_t>(FLOW_TABLE_SIZE) reg_dst_ip;
+    Register<bit<8>,  flow_id_t>(FLOW_TABLE_SIZE) reg_proto;
+    Register<bit<16>, flow_id_t>(FLOW_TABLE_SIZE) reg_src_port;
+    Register<bit<16>, flow_id_t>(FLOW_TABLE_SIZE) reg_dst_port;
+
     // Debug registers (single slot, index 0) so we can watch the pipeline over telnet.
     Register<flow_id_t, bit<32>>(1) reg_last_flow_id;    // flow_id of the most recent packet
     Register<bit<32>, bit<32>>(1)   reg_unique_flows;    // slots that went 0 -> 1 (new flows)
@@ -216,6 +224,12 @@ control MainControlImpl(
                 bit<32> n_flows = reg_unique_flows.read(0);
                 reg_flow_list.write(n_flows, user_meta.flow_id);
                 reg_unique_flows.write(0, n_flows + 1);
+
+                reg_src_ip.write(user_meta.flow_id, hdr.ipv4.srcAddr);
+                reg_dst_ip.write(user_meta.flow_id, hdr.ipv4.dstAddr);
+                reg_proto.write(user_meta.flow_id, hdr.ipv4.protocol);
+                reg_src_port.write(user_meta.flow_id, user_meta.src_port);
+                reg_dst_port.write(user_meta.flow_id, user_meta.dst_port);
             }
 
             user_meta.npkt_count = reg_npkt_count.read(user_meta.flow_id);
