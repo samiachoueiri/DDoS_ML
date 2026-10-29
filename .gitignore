@@ -10,6 +10,8 @@
 
 # Feature extraction output
 preprocessing/features_out/
+preprocessing/features_out_seconds_backup/
+
 # Extracted models
 training/models/knn/
 offline/models
