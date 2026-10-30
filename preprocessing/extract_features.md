@@ -17,6 +17,7 @@ so Part 3 waits until MAWI finishes.
 | 1. Interactive | Prepare, extract attack features, check them | A few hours, with some waiting |
 | 2. Unattended | Extract benign features (MAWI) | ~10 h for N = 3, 4, 5 (~3 h for N = 5 only) |
 | 3. After MAWI | Check, retrain, regenerate rules, validate online | Depends on training |
+| 4. Replay | Build attack-only PCAPs, replay them into the pipeline, compare | ~1 h to build, then the replay time |
 
 ## Part 1: interactive steps
 
@@ -142,3 +143,134 @@ python3 extract_selected_features.py --pcap-file test_data_1flow/test_flows.pcap
 
 Once the new results look right, you can delete
 `features_out_seconds_backup`.
+
+## Part 4: replay attack traffic into the pipeline
+
+This replays the CICDDoS2019 attack flows, without the `BENIGN` and `unknown`
+ones, into the P4 pipeline. The pipeline then extracts the same features online
+that the notebook extracts offline.
+
+Two scripts in `preprocessing/`:
+
+| Script | Runs on | What it does |
+|---|---|---|
+| `make_attack_replay_pcap.py` | this machine | Writes `<name>_attack.pcap` (packets of the attack flows only) and `<name>_ground_truth.csv` (one row per flow: 5-tuple, label, `flow_start_us`, packets written) for each PCAP |
+| `replay_attacks.sh` | server1 | Rewrites the MACs of each `*_attack.pcap` and replays it with tcpreplay |
+
+Flows are split and labelled exactly as in the notebook, and each kept flow
+keeps all its packets with their original timestamps. Running the offline
+extractor on `<name>_attack.pcap` gives the same rows as the training CSV for
+those flows. Flows with fewer than N packets are left out, since they are never
+training rows.
+
+### 9. Build the attack-only PCAPs
+
+In `cicddos2019_cached_label_extraction.ipynb`, run the setup cells, the
+Configuration cell, "Load official CSV labels" and Step 1 (for `pcap_files`).
+Then add a cell and test it on one file:
+
+```python
+import importlib
+import make_attack_replay_pcap as replay
+replay = importlib.reload(replay)
+
+REPLAY_DIR = Path("./replay") / DAY
+
+replay.build_replay_pcap(PCAP_DIR / "SAT-03-11-2018_0.pcap", REPLAY_DIR, labeler,
+                         n_packets=N_PACKETS, flow_timeout=FLOW_TIMEOUT)
+```
+
+The output lists the flows kept per label. Only attack labels should appear.
+Then process all the files (about 20 s per file):
+
+```python
+results = replay.build_replay_batch(pcap_files, REPLAY_DIR, labeler,
+                                    n_packets=N_PACKETS, flow_timeout=FLOW_TIMEOUT)
+pd.DataFrame(results).to_csv(REPLAY_DIR / f"replay_log_n{N_PACKETS}.csv", index=False)
+```
+
+The files go to `preprocessing/replay/03-11/`.
+
+Options:
+
+| Notebook argument | Terminal flag | Default | Meaning |
+|---|---|---|---|
+| `n_packets` | `--n-packets` | 5 | Same N as the P4 program |
+| `flow_timeout` | `--flow-timeout` | 120 | Same as the feature extraction |
+| `first_n_only=True` | `--first-n-only` | off | Write only the first N packets of each flow (smaller files, lower replay rate) |
+| `exclude_labels` | `--exclude-labels` | `BENIGN unknown` | Labels to leave out |
+| `skip_existing` (batch only) | n/a | True | Skip PCAPs whose `ground_truth.csv` already exists |
+
+Without the notebook, the script loads the label CSVs itself. This is slower:
+
+```bash
+cd ~/DDoS_ML/preprocessing
+python3 make_attack_replay_pcap.py \
+  --pcap-file /home/ubuntu/datasets/CICDDoS2019/PCAP-03-11/*.pcap \
+  --label-csv-dir /home/ubuntu/datasets/CICDDoS2019/CSV-03-11/03-11 \
+  --out-dir replay/03-11 --n-packets 5
+```
+
+### 10. Copy the files to server1
+
+From the FABRIC notebook:
+
+```python
+from pathlib import Path
+server1.upload_file('/home/ubuntu/DDoS_ML/preprocessing/replay_attacks.sh', 'replay_attacks.sh')
+server1.execute('mkdir -p attacks && chmod +x replay_attacks.sh')
+for p in sorted(Path('/home/ubuntu/DDoS_ML/preprocessing/replay/03-11').glob('*_attack.pcap')):
+    server1.upload_file(str(p), f'attacks/{p.name}')
+```
+
+### 11. Replay
+
+On server2, start the pipeline:
+
+```bash
+sudo dpdk/examples/pipeline/build/pipeline -c 0x1F -- -s /home/ubuntu/features/features.cli
+```
+
+On server1:
+
+```bash
+sudo ./replay_attacks.sh -d attacks                 # wait between files (default)
+sudo ./replay_attacks.sh -d attacks -y              # no waiting, back-to-back
+sudo ./replay_attacks.sh -d attacks -m 00:00:00:00:00:22 -i enp8s0np0   # other MAC / interface
+```
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `-d DIR` | `.` | Folder containing the `*_attack.pcap` files |
+| `-i IFACE` | `enp7s0np0` | Interface to send on |
+| `-s SRC_MAC` | `00:00:00:00:00:01` | Source MAC |
+| `-m DST_MAC` | `00:00:00:00:00:21` | Destination MAC |
+| `-y` | off | Don't wait between files |
+
+For each file, the script rewrites the MACs into a temporary copy, replays it
+at the original timing, and deletes the copy. The originals are not changed.
+Everything tcprewrite and tcpreplay print goes to
+`replay_<date>_<time>.log`.
+
+After each file, it waits for Enter. In that time, on server2:
+
+1. Save the registers: `python3 features/telnet.py`. Name the CSV after the
+   PCAP so you can match them later.
+2. Restart the pipeline. The P4 program has no flow timeout, so registers from
+   the previous file would otherwise stay in place and use up the 2^20 flow
+   slots.
+
+Check `Failed packets` in tcpreplay's output for each file. If it isn't 0, the
+replay rate was too high. Rebuild the PCAPs with `first_n_only=True`.
+
+### 12. Compare online with offline
+
+```bash
+cd ~/DDoS_ML/validation
+python3 extract_selected_features.py \
+  --pcap-file ../preprocessing/replay/03-11/SAT-03-11-2018_0_attack.pcap \
+  --online-file <online>.csv
+```
+
+To check the classifier's predictions later, `<name>_ground_truth.csv` gives
+the true label of each flow by 5-tuple.

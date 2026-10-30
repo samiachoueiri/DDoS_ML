@@ -11,6 +11,7 @@
 # Feature extraction output
 preprocessing/features_out/
 preprocessing/features_out_seconds_backup/
+preprocessing/replay/
 
 # Extracted models
 training/models/knn/
