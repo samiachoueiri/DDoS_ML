@@ -66,6 +66,16 @@ python3 extract_selected_features.py --pcap-file test_data_1flow/test_flows.pcap
   --online-file test_data_1flow/online_selected_n5.csv
 ```
 
+To compare against a feature CSV that was already extracted (for example the
+training CSV), use `--offline-csv` instead of `--pcap-file`. Only rows whose
+5-tuple is in the online CSV are loaded, and `--show` caps how many flows each
+list prints (above that, only failing flows are listed):
+
+```bash
+python3 extract_selected_features.py --offline-csv ../preprocessing/features_out/benign_features_n5.csv \
+  --online-file benign.csv --show 20
+```
+
 To compare a CSV that has all the training columns, use `compare()`. It applies
 one tolerance to every column, so keep it strict:
 

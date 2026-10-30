@@ -11,10 +11,15 @@ Rows are matched by 5-tuple. total_bytes and max_pkt_len must match exactly;
 max_iat_us passes if it is within --iat-tol-pct percent or --iat-tol-us
 microseconds of the offline value, whichever is larger (replay adds jitter).
 
+Instead of a PCAP, --offline-csv takes a feature CSV that was already
+extracted (for example the training CSV). Only its rows whose 5-tuple is in the
+online CSV are read, so a large file works.
+
 Usage:
     python3 extract_selected_features.py --pcap-file test_data_1flow/test_flows.pcap
     python3 extract_selected_features.py --pcap-file test_data/test_flows.pcap --online-file test_data/online_selected_n5.csv
     python3 extract_selected_features.py --pcap-file X.pcap --n-packets 3 --no-compare
+    python3 extract_selected_features.py --offline-csv ../preprocessing/features_out/benign_features_n5.csv --online-file benign.csv
 """
 
 import argparse
@@ -54,13 +59,37 @@ def extract_offline(pcap, n_packets):
         with open(full_csv) as f:
             rows = list(csv.DictReader(f))
 
-    return [{
+    return [select_features(r) for r in rows]
+
+
+def select_features(r):
+    """Training-CSV row -> the selected columns, named as in the online CSV."""
+    return {
         **{c: r[c] for c in FLOW_COLUMNS},
         "npackets": int(r["packet_count"]),
         "total_bytes": int(r["total_bytes"]),
         "max_pkt_len": int(r["packet_length_max"]),
-        "max_iat_us": int(r["iat_max"]),  # extractor outputs IAT in integer us
-    } for r in rows]
+        "max_iat_us": int(float(r["iat_max"])),  # extractor outputs IAT in integer us
+    }
+
+
+def read_offline_csv(path, keys):
+    """
+    Read the rows of an extracted feature CSV whose 5-tuple is in keys.
+
+    Returns (rows, total_rows). Rows for other 5-tuples are skipped without
+    being kept, so a multi-GB training CSV fits in memory.
+    """
+    rows, total = [], 0
+    with open(path) as f:
+        for r in csv.DictReader(f):
+            total += 1
+            try:
+                if offline_key(r) in keys:
+                    rows.append(select_features(r))
+            except (KeyError, TypeError, ValueError):
+                pass
+    return rows, total
 
 
 def write_offline(path, rows):
@@ -142,27 +171,51 @@ def compare(offline_rows, online_rows, n_packets, iat_tol_pct, iat_tol_us):
     return matched, online_only, offline_only, offline_restarts, failures
 
 
+def percentile(sorted_values, q):
+    return sorted_values[min(len(sorted_values) - 1, int(q / 100.0 * len(sorted_values)))]
+
+
+def print_list(title, items, show):
+    print()
+    print(title)
+    print("-" * 105)
+    for text in items[:show]:
+        print(f"  {text}")
+    if len(items) > show:
+        print(f"  ... and {len(items) - show:,} more")
+
+
 def print_report(matched, online_only, offline_only, offline_restarts, failures,
-                 n_packets, skipped, iat_tol_pct, iat_tol_us):
+                 n_packets, skipped, iat_tol_pct, iat_tol_us, show, offline_unread=None):
     line = "=" * 105
     print(line)
     print(f"ONLINE vs OFFLINE FEATURE DRIFT REPORT   (N = {n_packets})")
     print(line)
-    print(f"Matched flows:            {len(matched)}")
-    print(f"Online only (no offline): {len(online_only)}")
-    print(f"Offline only (no online): {len(offline_only)}")
-    print(f"Offline timeout restarts: {len(offline_restarts)}")
+    print(f"Matched flows:            {len(matched):,}")
+    print(f"Online only (no offline): {len(online_only):,}")
+    if offline_unread is None:
+        print(f"Offline only (no online): {len(offline_only):,}")
+    else:
+        print(f"Offline rows not online:  {offline_unread:,} (5-tuple not in the online CSV)")
+    print(f"Offline timeout restarts: {len(offline_restarts):,}")
     if skipped:
-        print(f"Skipped online lines:     {skipped} (not valid data rows)")
+        print(f"Skipped online lines:     {skipped:,} (not valid data rows)")
     print(f"IAT tolerance:            max({iat_tol_pct}%, {iat_tol_us} us)")
 
     if matched:
+        # Every flow when there are few, otherwise only failing ones, up to --show.
+        shown = matched if len(matched) <= show else [
+            m for m in matched if not all(ok for _, _, ok in m["checks"].values())][:show]
         print()
-        print("Per-flow comparison (online - offline)")
+        if shown is matched:
+            print("Per-flow comparison (online - offline)")
+        else:
+            print(f"Per-flow comparison (online - offline): first {len(shown)} failing flow(s) "
+                  f"of {len(matched):,} matched")
         print("-" * 105)
         print(f"{'flow':50} {'feature':12} {'offline':>10} {'online':>10} {'diff':>9} {'drift %':>8}  ")
         print("-" * 105)
-        for m in matched:
+        for m in shown:
             label = f"{fmt_key(m['key'])} [{m['flow_id']}]"
             for i, feat in enumerate(FEATURES):
                 diff, p, ok = m["checks"][feat]
@@ -173,44 +226,39 @@ def print_report(matched, online_only, offline_only, offline_restarts, failures,
 
         print("Drift summary per feature")
         print("-" * 105)
-        print(f"{'feature':12} {'pass':>8} {'exact':>7} {'mean |diff|':>12} {'max |diff|':>11} "
-              f"{'mean drift %':>13} {'max |drift %|':>14}")
+        print(f"{'feature':12} {'pass':>13} {'exact':>11} {'mean |diff|':>12} {'p50 |diff|':>11} "
+              f"{'p99 |diff|':>11} {'max |diff|':>11} {'mean drift %':>13}")
         print("-" * 105)
         for feat in FEATURES:
             checks = [m["checks"][feat] for m in matched]
-            diffs = [abs(d) for d, _, _ in checks]
+            diffs = sorted(abs(d) for d, _, _ in checks)
             pcts = [p for _, p, _ in checks if p is not None]
             passed = sum(ok for _, _, ok in checks)
             exact = sum(d == 0 for d in diffs)
             mean_pct = f"{statistics.mean(pcts):+.3f}" if pcts else "n/a"
-            max_pct = f"{max(abs(p) for p in pcts):.3f}" if pcts else "n/a"
-            print(f"{feat:12} {f'{passed}/{len(checks)}':>8} {exact:>7} {statistics.mean(diffs):>12.1f} "
-                  f"{max(diffs):>11} {mean_pct:>13} {max_pct:>14}")
+            print(f"{feat:12} {f'{passed:,}/{len(checks):,}':>13} {exact:>11,} {statistics.mean(diffs):>12.1f} "
+                  f"{percentile(diffs, 50):>11} {percentile(diffs, 99):>11} {diffs[-1]:>11} {mean_pct:>13}")
 
     if online_only:
-        print()
-        print("Online only")
-        print("-" * 105)
-        for r in online_only:
-            why = (f"incomplete: {r['npackets']} < N packets, offline writes no row"
-                   if r["npackets"] < n_packets else "no offline row (check parser / 5-tuple)")
-            print(f"  {fmt_key(r['key'])} [{r['flow_id']}]: {why}")
+        incomplete = [r for r in online_only if r["npackets"] < n_packets]
+        print_list(f"Online only: {len(incomplete):,} incomplete (< N packets, offline writes no row), "
+                   f"{len(online_only) - len(incomplete):,} with N packets",
+                   [f"{fmt_key(r['key'])} [{r['flow_id']}]: "
+                    + (f"incomplete ({r['npackets']} packets)" if r["npackets"] < n_packets
+                       else "no offline row (check parser / 5-tuple)")
+                    for r in sorted(online_only, key=lambda r: r["npackets"] < n_packets)],
+                   show)
 
     if offline_only:
-        print()
-        print("Offline only")
-        print("-" * 105)
-        for r in offline_only:
-            k = offline_key(r)
-            why = "IPv6, not parsed by the P4 program" if ":" in r["src_ip"] else "not seen online"
-            print(f"  {fmt_key(k)}: {why}")
+        print_list("Offline only",
+                   [f"{fmt_key(offline_key(r))}: "
+                    + ("IPv6, not parsed by the P4 program" if ":" in r["src_ip"] else "not seen online")
+                    for r in offline_only],
+                   show)
 
     if offline_restarts:
-        print()
-        print("Offline timeout restarts (P4 has no flow timeout, so these have no online row)")
-        print("-" * 105)
-        for k in offline_restarts:
-            print(f"  {fmt_key(k)}")
+        print_list("Offline timeout restarts (P4 has no flow timeout, so these have no online row)",
+                   [fmt_key(k) for k in offline_restarts], show)
 
     print()
     print(line)
@@ -224,14 +272,22 @@ def print_report(matched, online_only, offline_only, offline_restarts, failures,
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--pcap-file", required=True)
+    source = ap.add_mutually_exclusive_group(required=True)
+    source.add_argument("--pcap-file", help="Run the offline extractor on this PCAP")
+    source.add_argument("--offline-csv", help="Use this already-extracted feature CSV (needs --online-file)")
     ap.add_argument("--n-packets", type=int, default=5, help="First N packets per flow (default: 5)")
     ap.add_argument("--output-file", help="Offline CSV. Default: offline_selected_n{N}.csv next to the PCAP")
     ap.add_argument("--online-file", help="Online CSV. Default: online_selected_n{N}.csv next to the PCAP")
     ap.add_argument("--no-compare", action="store_true", help="Only write the offline CSV")
     ap.add_argument("--iat-tol-pct", type=float, default=5.0, help="IAT tolerance in percent (default: 5)")
     ap.add_argument("--iat-tol-us", type=float, default=100.0, help="IAT tolerance floor in us (default: 100)")
+    ap.add_argument("--show", type=int, default=50,
+                    help="Max flows per list in the report; above this, only failing flows are shown (default: 50)")
     args = ap.parse_args()
+
+    if args.offline_csv:
+        compare_offline_csv(args)
+        return
 
     pcap = Path(args.pcap_file)
     out = Path(args.output_file or pcap.parent / f"offline_selected_n{args.n_packets}.csv")
@@ -251,7 +307,24 @@ def main():
     print()
 
     results = compare(offline_rows, online_rows, args.n_packets, args.iat_tol_pct, args.iat_tol_us)
-    ok = print_report(*results, args.n_packets, skipped, args.iat_tol_pct, args.iat_tol_us)
+    ok = print_report(*results, args.n_packets, skipped, args.iat_tol_pct, args.iat_tol_us, args.show)
+    sys.exit(0 if ok else 1)
+
+
+def compare_offline_csv(args):
+    """Compare an already-extracted feature CSV with the online CSV."""
+    if not args.online_file:
+        sys.exit("--offline-csv needs --online-file")
+    online_rows, skipped = read_online(args.online_file)
+    print(f"{len(online_rows):,} flows read from {args.online_file}")
+
+    offline_rows, total = read_offline_csv(args.offline_csv, {r["key"] for r in online_rows})
+    print(f"{total:,} rows in {args.offline_csv}, {len(offline_rows):,} with a 5-tuple seen online")
+    print()
+
+    results = compare(offline_rows, online_rows, args.n_packets, args.iat_tol_pct, args.iat_tol_us)
+    ok = print_report(*results, args.n_packets, skipped, args.iat_tol_pct, args.iat_tol_us, args.show,
+                      offline_unread=total - len(offline_rows))
     sys.exit(0 if ok else 1)
 
 
