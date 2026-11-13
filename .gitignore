@@ -12,6 +12,7 @@
 preprocessing/features_out/
 preprocessing/features_out_seconds_backup/
 preprocessing/replay/
+validation/*.csv
 
 # Extracted models
 training/models/knn/

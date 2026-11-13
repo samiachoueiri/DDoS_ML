@@ -95,6 +95,44 @@ Use tcpreplay, not pktgen. tcpreplay keeps the original gaps between packets,
 which the IAT feature depends on. Restart the pipeline between runs, because
 the registers keep their values.
 
+### Server1: rewrite the MAC addresses
+
+The test PCAPs from `make_test_pcap.py` already use source MAC
+`00:00:00:00:00:01` and destination MAC `00:00:00:00:00:21`. Other PCAPs
+(CICDDoS2019, MAWI) need their MACs rewritten with `tcprewrite` first:
+
+```bash
+sudo tcprewrite --enet-smac=00:00:00:00:00:01 --enet-dmac=00:00:00:00:00:21 \
+  --infile=202604080000_first5s_ipv4.pcap --outfile=benign.pcap
+sudo tcpreplay -i enp7s0np0 -v benign.pcap
+```
+
+`tcprewrite` stops with `Packet length ... is to short to contain an IPv6
+header` on MAWI, because MAWI keeps only the first 96 bytes of each packet. Use
+an IPv4-only PCAP, which the P4 program needs anyway:
+
+```bash
+sudo tcpdump -r in.pcap -w in_ipv4.pcap ip
+```
+
+For the CICDDoS2019 attack PCAPs, `preprocessing/replay_attacks.sh` runs
+`tcprewrite` and `tcpreplay` for each file (see
+`preprocessing/extract_features.md`, Part 4).
+
+### Compare with the offline features
+
+After saving the registers with `telnet.py`, compare them with the offline
+extractor on the same PCAP (from `validation/`):
+
+```bash
+python3 extract_selected_features.py \
+  --pcap-file /home/ubuntu/datasets/mawi_ditl2026/202604080000_first5s_ipv4.pcap \
+  --online-file <online>.csv --output-file offline_mawi5s_n5.csv --show 20
+```
+
+Use the original PCAP, not the rewritten one. Only the MACs differ, and the
+features don't use them.
+
 ## Results
 
 ### Single flow (`1_flows.csv`)
